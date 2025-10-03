@@ -1,6 +1,8 @@
 # 聽歌猜動畫遊戲
 ## 使用工具
 1. python
+    + 注意 moviepy 不要用最新版，目前有 bug
+    + `pip install moviepy==1.0.3`
 2. youtube(API)
 3. google 試算表、Apps Script
 4. [Hitomi-Downloader](https://github.com/KurtBestor/Hitomi-Downloader)

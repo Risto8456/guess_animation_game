@@ -1,0 +1,93 @@
+/**
+ * 只新增「表中沒有的 VideoID」；保留既有資料（含 Animation/SeasonOPED/Song/CHtranslation）
+ * 欄位順序：# | Title | VideoID | URL | Animation | SeasonOPED | Song | CHtranslation | Point | Time
+ * 需求：啟用「YouTube Data API v3（進階服務）」；Cloud 專案也需啟用 API
+ */
+function upsertPlaylistBareToSheet() {
+  const playlistId = 'youtube 清單 ID'; // youtube 清單 ID
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheetName = 'YT Playlist Export';
+  const sh = ss.getSheetByName(sheetName) || ss.insertSheet(sheetName);
+
+  // 1) 確保表頭
+  const HEADER = ['#','Title','VideoID','URL','Animation','SeasonOPED','Song','CHtranslation', 'Point', 'Time'];
+  if (sh.getLastRow() === 0) {
+    sh.appendRow(HEADER);
+  } else {
+    // 如果表頭不同，強制覆寫為目標表頭（避免欄位順序錯亂）
+    const currentHeader = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+    const same = HEADER.length === currentHeader.length &&
+                 HEADER.every((h, i) => String(h) === String(currentHeader[i]));
+    if (!same) {
+      sh.getRange(1, 1, 1, HEADER.length).setValues([HEADER]);
+    }
+  }
+
+  // 2) 建立已存在的 VideoID 集合，與當前序號
+  const lastRow = sh.getLastRow();               // 含表頭
+  const lastCol = sh.getLastColumn();
+  const header = sh.getRange(1, 1, 1, lastCol).getValues()[0].map(s => String(s).trim());
+  const idxOf = name => header.findIndex(h => h.toLowerCase() === name.toLowerCase()) + 1;
+
+  const colVideoID = idxOf('VideoID');
+  if (!colVideoID) throw new Error('找不到「VideoID」欄，請確認表頭。');
+
+  const have = new Set();
+  if (lastRow > 1) {
+    sh.getRange(2, colVideoID, lastRow - 1, 1).getValues().flat().forEach(v => {
+      if (v) have.add(String(v).trim());
+    });
+  }
+
+  // 已有的序號（不含表頭）；新資料接續編號
+  let seq = Math.max(0, lastRow - 1);
+
+  // 3) 抓播放清單：只保留 Title / VideoID / URL；用 VideoID 去重；最後一次性 append
+  let pageToken = null;
+  const newRows = [];
+
+  do {
+    const resp = YouTube.PlaylistItems.list('snippet,contentDetails', {
+      playlistId: playlistId,
+      maxResults: 50,
+      pageToken: pageToken
+    });
+
+    if (!resp || !resp.items) break;
+    
+    Logger.log("Fetched: %s videos, nextPageToken=%s", resp.items.length, resp.nextPageToken);
+
+    resp.items.forEach(it => {
+      const sn  = it.snippet;
+      const vid = it.contentDetails.videoId;
+      if (!vid) return; // 少數異常情況保護
+      if (have.has(vid)) return; // 已存在就跳過
+
+      seq++;
+      have.add(vid);
+
+      const title = String(sn.title || '').trim();
+      const url   = 'https://youtu.be/' + vid;
+
+      // 依指定欄序輸出；中間空欄預留空字串
+      newRows.push([
+        seq,       // #
+        title,     // Title
+        vid,       // VideoID
+        url,       // URL
+        '',        // Animation
+        '',        // SeasonOPED
+        '',        // Song
+        '',        // CHtranslation
+        '',        // Point
+        ''         // Time
+      ]);
+    });
+
+    pageToken = resp.nextPageToken;
+  } while (pageToken);
+
+  if (newRows.length) {
+    sh.getRange(sh.getLastRow() + 1, 1, newRows.length, HEADER.length).setValues(newRows);
+  }
+}

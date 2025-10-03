@@ -4,10 +4,13 @@ import cv2
 import csv
 import random
 
+# 取得該檔案所在資料夾
+dir_path = os.path.dirname(__file__)
+
 # 設定資料夾
-image_dir = r"picture/pixelated_picture"
-audio_dir = r"mp3_audio/normalized_audio"
-csv_path = r"youtube - YT Playlist Export.csv"
+image_dir = dir_path + r"/picture/pixelated_picture"
+audio_dir = dir_path + r"/mp3_audio/normalized_audio"
+csv_path = dir_path + r"/youtube - YT Playlist Export.csv"
 
 # 1 ~ 103
 ids = list(range(1, 104))
@@ -35,7 +38,7 @@ with open(csv_path, newline='', encoding='utf-8-sig') as f:
         }
 
 # 字體 (使用支援中日文字體，如 msyh.ttc)
-font_path = "msyh.ttc"
+font_path = dir_path + r"/msyh.ttc"
 font1_size = 60
 font2_size = 40
 font1 = pygame.font.Font(font_path, font1_size)

@@ -3,10 +3,11 @@
 from PIL import Image
 import os
 
-# 圖片資料夾
-folder = r"picture/jpg_picture"
-# 輸出資料夾
-output_folder = r"picture/resized_pictures"
+# 取得該檔案所在資料夾
+dir_path = os.path.dirname(__file__)
+
+folder = dir_path + r"/jpg_picture"             # 圖片資料夾
+output_folder = dir_path + r"/resized_pictures" # 輸出資料夾
 os.makedirs(output_folder, exist_ok=True)
 
 # 最大尺寸

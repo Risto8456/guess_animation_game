@@ -1,24 +1,23 @@
 # -*- coding: utf-8 -*-
 # 使用 moviepy 套件來處理影片剪輯 (取音檔)
 
-# pip install moviepy==1.0.3
 from moviepy.editor import VideoFileClip
 import pandas as pd
 import os
 
-# 環境路徑
-# C:\Users\User\youtube_video_env\Scripts\python.exe
-# 環境啟動指令
-# C:\Users\User\youtube_video_env\Scripts\Activate.ps1
+# 取得該檔案所在資料夾
+dir_path = os.path.dirname(__file__)
+# 再上一層資料夾
+parent_dir = os.path.dirname(dir_path)
 
 # 讀取 CSV 檔案
-csv_file_path = r"youtube - YT Playlist Export.csv"
+csv_file_path = parent_dir + r"/youtube - YT Playlist Export.csv"
 df = pd.read_csv(csv_file_path)
 
 # 影片檔案夾路徑，放在專案外
 video_folder = r"D:\hitomi_downloader_GUI\hitomi_downloaded_youtube\[Playlist] 系員大會_題庫"
 # 儲存剪輯音檔的資料夾
-cut_folder = r"mp3_audio/original_audio"
+cut_folder = dir_path + r"/original_audio"
 os.makedirs(cut_folder, exist_ok=True)
 
 # 讀取 CSV 中的 VideoID 和 Time 欄位

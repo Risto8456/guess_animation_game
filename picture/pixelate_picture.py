@@ -3,8 +3,11 @@
 import os
 import cv2
 
-input_dir = r"picture/resized_pictures"     # 原始圖片資料夾
-output_dir = r"picture/pixelated_picture"   # 輸出馬賽克圖片資料夾
+# 取得該檔案所在資料夾
+dir_path = os.path.dirname(__file__)
+
+input_dir = dir_path + r"/resized_pictures"     # 原始圖片資料夾
+output_dir = dir_path + r"/pixelated_picture"   # 輸出馬賽克圖片資料夾
 os.makedirs(output_dir, exist_ok=True)
 
 # 馬賽克每個階段的方塊大小 (pixel block)

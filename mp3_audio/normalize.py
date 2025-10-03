@@ -3,9 +3,12 @@
 import os
 import subprocess
 
+# 取得該檔案所在資料夾
+dir_path = os.path.dirname(__file__)
+
 # 資料夾設定
-input_dir = r"mp3_audio/original_audio"
-output_dir = r"mp3_audio/normalized_audio"
+input_dir = dir_path + r"/original_audio"
+output_dir = dir_path + r"/normalized_audio"
 os.makedirs(output_dir, exist_ok=True)
 
 print("=" * 40)
